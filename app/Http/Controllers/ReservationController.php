@@ -2,99 +2,125 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Mail\ReservationConfirmation;
 use App\Models\Reservation;
+use App\Models\Room;
+use App\Models\User;
+use App\Services\ReservationDocument;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class ReservationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $reservations = Reservation::with(['room', 'user'])->get();
-
-        return view('reservations.index', compact('reservations'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('reservations.create');
+        return redirect()->route('dashboard', ['tab' => 'reservar', 'room_id' => request('room_id')]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:rooms,id',
-            'check_in' => 'required|date',
-            'check_out' => 'required|date|after:check_in',
-            'total_price' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $isAdmin = (bool) $request->user()->is_admin;
+
+        $data = $request->validate([
+            'room_id' => ['required', 'integer', 'exists:rooms,id'],
+            'check_in' => ['required', 'date', 'after_or_equal:today', 'before_or_equal:'.today()->addYear()->toDateString()],
+            'check_out' => ['required', 'date', 'after:check_in', 'before_or_equal:'.Carbon::parse($request->input('check_in') ?: today())->addDays(30)->toDateString()],
+            'user_id' => [$isAdmin ? 'nullable' : 'prohibited', 'integer', 'exists:users,id'],
+            'guest_name' => [$isAdmin ? 'nullable' : 'prohibited', 'required_with:guest_email', 'string', 'min:3', 'max:100', "regex:/^[\pL\s.'-]+$/u"],
+            'guest_email' => [$isAdmin ? 'nullable' : 'prohibited', $isAdmin ? 'required_without:user_id' : 'nullable', 'email:rfc', 'max:255'],
+        ], [
+            'check_in.after_or_equal' => 'La entrada no puede ser anterior a hoy.',
+            'check_in.before_or_equal' => 'Solo se puede reservar con hasta un año de anticipación.',
+            'check_out.after' => 'La salida debe ser posterior a la entrada.',
+            'check_out.before_or_equal' => 'La estadía máxima es de 30 noches.',
+            'guest_name.required_with' => 'Indica el nombre del huésped.',
+            'guest_name.regex' => 'El nombre solo puede contener letras y espacios.',
+            'guest_email.required_without' => 'Elige un huésped o escribe su correo.',
+            'guest_email.email' => 'Escribe un correo válido.',
         ]);
 
-        Reservation::create($validated);
+        // Solo un administrador reserva a nombre de otros; un correo nuevo crea la cuenta del huésped.
+        if (! $isAdmin) {
+            $guest = $request->user();
+        } elseif (! empty($data['guest_email'])) {
+            $guest = User::firstOrCreate(
+                ['email' => mb_strtolower($data['guest_email'])],
+                ['name' => $data['guest_name'], 'password' => \Illuminate\Support\Str::random(24)]
+            );
+        } else {
+            $guest = User::findOrFail($data['user_id']);
+        }
+        $room = Room::findOrFail($data['room_id']);
 
-        return redirect()->route('reservations.index')
-            ->with('success', 'Reservacion creada correctamente.');
-    }
+        if ($room->status !== 'available') {
+            throw ValidationException::withMessages(['room_id' => 'La habitación no está disponible.']);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $reservation = Reservation::with(['room', 'user'])->findOrFail($id);
+        $conflict = $room->reservations()
+            ->where('status', '!=', 'cancelled')
+            ->where('check_in', '<', $data['check_out'])
+            ->where('check_out', '>', $data['check_in'])
+            ->exists();
 
-        return view('reservations.show', compact('reservation'));
-    }
+        if ($conflict) {
+            throw ValidationException::withMessages(['room_id' => 'La habitación ya está reservada en esas fechas.']);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $reservation = Reservation::findOrFail($id);
+        $nights = Carbon::parse($data['check_in'])->diffInDays(Carbon::parse($data['check_out']));
 
-        return view('reservations.edit', compact('reservation'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:rooms,id',
-            'check_in' => 'required|date',
-            'check_out' => 'required|date|after:check_in',
-            'total_price' => 'required|numeric|min:0',
-            'status' => 'required|string',
+        $reservation = Reservation::create([
+            'user_id' => $guest->id,
+            'room_id' => $room->id,
+            'check_in' => $data['check_in'],
+            'check_out' => $data['check_out'],
+            'total_price' => $nights * $room->price_per_night,
+            'status' => 'confirmed',
         ]);
 
-        $reservation = Reservation::findOrFail($id);
-        $reservation->update($validated);
+        // La reserva se conserva aunque el correo falle.
+        try {
+            Mail::to($guest->email)->send(new ReservationConfirmation($reservation));
+            $note = ' Te enviamos la confirmación por correo.';
+        } catch (\Throwable $e) {
+            report($e);
+            $note = ' No se pudo enviar el correo, pero puedes descargar el comprobante.';
+        }
 
-        return redirect()->route('reservations.index')
-            ->with('success', 'Reservacion actualizada correctamente.');
+        return redirect()->route($request->user()->is_admin ? 'admin' : 'dashboard', ['tab' => $request->user()->is_admin ? 'historial' : 'mis'])
+            ->with('success', 'Reserva #'.$reservation->id.' creada.'.$note);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function cancel(Request $request, Reservation $reservation)
     {
-        $reservation = Reservation::findOrFail($id);
-        $reservation->delete();
+        $this->authorizeAccess($request, $reservation);
+        $reservation->update(['status' => 'cancelled']);
 
-        return redirect()->route('reservations.index')
-            ->with('success', 'Reservacion eliminada correctamente.');
+        return back()->with('success', 'Reserva #'.$reservation->id.' cancelada.');
+    }
+
+    public function pdf(Request $request, Reservation $reservation)
+    {
+        $this->authorizeAccess($request, $reservation);
+
+        return response(app(ReservationDocument::class)->pdf($reservation), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="reserva-'.$reservation->id.'.pdf"',
+        ]);
+    }
+
+    public function verify(Request $request, int $id)
+    {
+        if (! hash_equals(ReservationDocument::token($id), (string) $request->query('token'))) {
+            abort(403, 'Token inválido.');
+        }
+
+        return view('reservations.verify', ['reservation' => Reservation::with(['room', 'user'])->findOrFail($id)]);
+    }
+
+    private function authorizeAccess(Request $request, Reservation $reservation): void
+    {
+        abort_unless($request->user()->is_admin || $reservation->user_id === $request->user()->id, 403);
     }
 }

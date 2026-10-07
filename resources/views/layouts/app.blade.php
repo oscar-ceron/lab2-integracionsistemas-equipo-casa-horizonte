@@ -1,33 +1,21 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#173f35">
-    <title>@yield('title', 'Casa Horizonte') · Casa Horizonte</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root{--ink:#20352e;--muted:#738078;--green:#1c5947;--green-dark:#173f35;--lime:#dbe7a4;--paper:#f7f7f2;--line:#e5e9df;--white:#fff;--shadow:0 18px 50px rgba(25,55,43,.08)}
-        *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px}a{color:inherit;text-decoration:none}button,input,select{font:inherit}.site-header{height:78px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);display:flex;align-items:center}.header-inner{width:min(1160px,calc(100% - 48px));margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;font-weight:700}.brand-mark{width:40px;height:40px;border-radius:13px;background:var(--green-dark);display:grid;place-items:center;color:var(--lime);font-size:21px}.brand-name{font-family:'Playfair Display',serif;font-size:20px}.brand-caption{display:block;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:1px}.nav{display:flex;align-items:center;gap:28px;color:#59665f;font-size:14px}.nav a:hover,.nav a.active{color:var(--green);font-weight:700}.button{background:var(--green);border:0;color:#fff;padding:12px 18px;border-radius:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.2s}.button:hover{background:var(--green-dark);transform:translateY(-1px)}.container{width:min(1160px,calc(100% - 48px));margin:0 auto}.page-content{min-height:calc(100vh - 150px)}.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:700}.hero{background:var(--green-dark);color:white;position:relative;overflow:hidden}.hero:after{content:'';position:absolute;width:500px;height:500px;border:1px solid rgba(219,231,164,.22);border-radius:50%;right:-70px;top:-310px;box-shadow:0 0 0 50px rgba(219,231,164,.035),0 0 0 100px rgba(219,231,164,.025)}.hero-inner{padding:60px 0 54px;position:relative;z-index:1}.hero .eyebrow{color:var(--lime)}h1,h2,h3,p{margin-top:0}h1,h2{font-family:'Playfair Display',serif;letter-spacing:-.035em}h1{font-size:clamp(36px,5vw,56px);line-height:1.07;margin:14px 0}.hero p{max-width:550px;color:#d3ded7;line-height:1.7;margin:0}.section{padding:44px 0 68px}.section-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}.section-heading h2{font-size:30px;margin:8px 0 0}.section-heading p{color:var(--muted);margin:0}.room-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.room-card,.form-card,.empty-card{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}.room-visual{height:190px;position:relative;background:linear-gradient(135deg,#b6c4ae,#e6d7b7);overflow:hidden}.room-visual:before{content:'';position:absolute;left:12%;right:12%;bottom:0;height:60%;background:linear-gradient(110deg,#d6c7ab,#f0e8d7);border-radius:95px 95px 0 0}.room-visual:after{content:'';position:absolute;width:100px;height:78px;left:calc(50% - 50px);bottom:40px;border-radius:55px 55px 0 0;background:linear-gradient(90deg,#d4e0d5 49%,#b5cabb 50%);border:8px solid #f8f5eb;box-shadow:0 12px 22px #29382c24}.visual-2{background:linear-gradient(140deg,#d4c9b0,#829b85)}.visual-3{background:linear-gradient(140deg,#aab9aa,#e6d4b5)}.visual-label{position:absolute;top:14px;left:14px;padding:7px 10px;border-radius:20px;background:#ffffffdd;color:var(--green-dark);font-size:11px;font-weight:700;z-index:1}.room-body{padding:18px 19px 20px}.room-top{display:flex;justify-content:space-between;align-items:start;gap:10px}.room-body h3{font-family:'Playfair Display',serif;font-size:21px;margin:0 0 6px}.room-number{font-size:12px;color:var(--muted)}.room-price{font-weight:700;color:var(--green);white-space:nowrap}.room-price small{display:block;text-align:right;color:var(--muted);font-weight:500;font-size:10px}.room-meta{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px;color:#65736b;font-size:12px}.room-meta span{padding:7px 9px;background:#f4f6f0;border-radius:6px}.room-action{border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;justify-content:space-between;color:var(--green);font-size:13px;font-weight:700}.empty-card{padding:44px 24px;text-align:center;color:var(--muted);line-height:1.8}.form-wrap{max-width:760px;margin:0 auto;padding:44px 0 70px}.back-link{display:inline-flex;color:var(--green);font-weight:700;font-size:13px;margin-bottom:24px}.form-intro{margin-bottom:24px}.form-intro h1{font-size:40px;margin:10px 0}.form-intro p{color:var(--muted);line-height:1.6;margin:0}.form-card{padding:28px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.field{display:flex;flex-direction:column;gap:8px}.field.wide{grid-column:1/-1}.field label{font-size:13px;font-weight:700}.field input,.field select{width:100%;height:47px;padding:0 13px;border:1px solid #dce3d9;border-radius:8px;background:white;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px #1c594718}.field-error{color:#b42318;font-size:12px}.help{color:var(--muted);font-size:12px;line-height:1.5}.form-divider{border:0;border-top:1px solid var(--line);margin:25px 0 20px}.form-actions{display:flex;justify-content:space-between;align-items:center;gap:14px}.alert{padding:13px 15px;border-radius:8px;background:#fff3f0;border:1px solid #f4d1ca;color:#9c3125;margin-bottom:20px;font-size:13px}.site-footer{border-top:1px solid var(--line);padding:23px 0;color:var(--muted);font-size:12px}.footer-inner{display:flex;justify-content:space-between;gap:20px}@media(max-width:760px){.nav{gap:14px}.room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-inner{padding:44px 0}.section{padding:34px 0 48px}}@media(max-width:560px){.header-inner,.container{width:calc(100% - 32px)}.site-header{height:68px}.brand-name{font-size:17px}.nav{gap:10px;font-size:12px}.room-grid,.form-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.section-heading{align-items:start;gap:14px;flex-direction:column}.form-wrap{padding-top:30px}.form-card{padding:20px}.form-actions,.footer-inner{align-items:stretch;flex-direction:column;gap:10px}}
-    </style>
-</head>
-<body>
-    <header class="site-header">
-        <div class="header-inner">
-            <a class="brand" href="{{ route('rooms.index') }}" aria-label="Casa Horizonte, inicio">
-                <span class="brand-mark" aria-hidden="true">⌂</span>
-                <span class="brand-name">Casa Horizonte<span class="brand-caption">Estadías con calma</span></span>
-            </a>
-            <nav class="nav" aria-label="Navegación principal">
-                <a class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">Habitaciones</a>
-                <a class="{{ request()->is('reservations/*') ? 'active' : '' }}" href="{{ url('/reservations/create') }}">Reservas</a>
-            </nav>
-            <a class="button" href="{{ url('/reservations/create') }}">Reservar <span aria-hidden="true">↗</span></a>
-        </div>
-    </header>
-    <main class="page-content">@yield('content')</main>
-    <footer class="site-footer"><div class="container footer-inner"><span>© {{ date('Y') }} Casa Horizonte · Hotel boutique</span><span>Un espacio para bajar el ritmo y sentirse en casa.</span></div></footer>
-</body>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        @include('layouts.head', ['title' => 'Casa Horizonte'])
+    </head>
+    <body class="min-h-screen">
+        @include('layouts.navigation')
+
+        @isset($header)
+            <header class="border-b border-gray-200">
+                <div class="mx-auto max-w-6xl px-5 py-8 sm:px-8 [&_h2]:font-display [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:text-indigo-900">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
+
+        <main>{{ $slot }}</main>
+
+        @include('partials.flash')
+    </body>
 </html>
