@@ -30,14 +30,28 @@
                 </div>
                 <span class="inline-flex items-center gap-2 text-sm text-gray-700"><span class="size-2 rounded-full {{ $dot }}"></span>{{ $label }}</span>
                 <span class="num w-24 text-right font-semibold {{ $r->status === 'cancelled' ? 'text-gray-400 line-through' : 'text-gray-900' }}">${{ number_format($r->total_price, 2) }}</span>
-                @if ($actions && $r->status !== 'cancelled')
+                @if ($actions)
+                    @php $canCancel = auth()->check() && $r->canBeCancelledBy(auth()->user()); @endphp
                     <div class="flex items-center gap-1">
-                        <a href="{{ route('reservations.pdf', $r) }}" class="btn btn-quiet !p-2.5" title="Descargar PDF" aria-label="Descargar PDF"><x-icon name="download" /></a>
-                        <form method="POST" action="{{ route('reservations.cancel', $r) }}" data-confirm="Esta acción liberará la habitación." data-confirm-title="¿Cancelar la reserva?" data-confirm-button="Sí, cancelar">
-                            @csrf @method('PATCH')
-                            <button class="btn btn-quiet !p-2.5 hover:!text-red-700" title="Cancelar" aria-label="Cancelar reserva"><x-icon name="x" /></button>
-                        </form>
+                        @unless ($r->isCancelled())
+                            <a href="{{ route('reservations.pdf', $r) }}" class="btn btn-quiet !p-2.5" title="Descargar PDF" aria-label="Descargar PDF"><x-icon name="download" /></a>
+                            @if ($canCancel)
+                                <form method="POST" action="{{ route('reservations.cancel', $r) }}" data-confirm="La habitación se liberará y te enviaremos un aviso por correo." data-confirm-title="¿Cancelar la reserva #{{ $r->id }}?" data-confirm-button="Sí, cancelar" data-reasons='@json(\App\Http\Controllers\ReservationController::CANCEL_REASONS)'>
+                                    @csrf @method('PATCH')
+                                    <button class="btn btn-quiet !p-2.5 hover:!text-red-700" title="Cancelar reserva" aria-label="Cancelar reserva"><x-icon name="x" /></button>
+                                </form>
+                            @else
+                                <span class="btn btn-quiet pointer-events-none !p-2.5 opacity-40" title="Fuera del plazo de cancelación ({{ \App\Models\Reservation::FREE_CANCEL_HOURS }} h antes de la entrada)" aria-label="Cancelación no disponible"><x-icon name="x" /></span>
+                            @endif
+                        @endunless
                     </div>
+                @endif
+                @if ($r->isCancelled() && $r->cancelled_at)
+                    <p class="basis-full pl-16 text-xs text-gray-500">
+                        Cancelada el {{ $r->cancelled_at->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
+                        @if ($r->canceller && $r->cancelled_by !== $r->user_id) por el hotel @endif
+                        @if ($r->cancel_reason) · Motivo: {{ $r->cancel_reason }} @endif
+                    </p>
                 @endif
             </div>
         @endforeach

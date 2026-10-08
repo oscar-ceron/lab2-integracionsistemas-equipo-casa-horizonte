@@ -22,6 +22,11 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function reservations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Reservation::class);
+    }
+
     public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Review::class);

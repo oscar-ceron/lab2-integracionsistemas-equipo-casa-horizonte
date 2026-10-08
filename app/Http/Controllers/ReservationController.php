@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReservationCancelled;
 use App\Mail\ReservationConfirmation;
 use App\Models\Reservation;
 use App\Models\Room;
@@ -92,17 +93,55 @@ class ReservationController extends Controller
             ->with('success', 'Reserva #'.$reservation->id.' creada.'.$note);
     }
 
+    public const CANCEL_REASONS = [
+        'Cambio de planes',
+        'Encontré otra opción',
+        'Error en las fechas',
+        'Motivo personal o de salud',
+        'Otro',
+    ];
+
     public function cancel(Request $request, Reservation $reservation)
     {
-        $this->authorizeAccess($request, $reservation);
-        $reservation->update(['status' => 'cancelled']);
+        $reservation = $this->ownedReservation($request, $reservation);
+        $user = $request->user();
 
-        return back()->with('success', 'Reserva #'.$reservation->id.' cancelada.');
+        $data = $request->validate([
+            'reason' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        if ($reservation->isCancelled()) {
+            return back()->with('error', 'La reserva #'.$reservation->id.' ya estaba cancelada.');
+        }
+
+        if (! $reservation->canBeCancelledBy($user)) {
+            $msg = $user->is_admin
+                ? 'No se puede cancelar una estancia que ya terminó.'
+                : 'El plazo de cancelación terminó el '.$reservation->cancelDeadline()->locale('es')->isoFormat('D MMM [a las] HH:mm').'. Contacta con el hotel.';
+
+            return back()->with('error', $msg);
+        }
+
+        $reservation->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancelled_by' => $user->id,
+            'cancel_reason' => $data['reason'] ?? null,
+        ]);
+
+        $note = '';
+        try {
+            Mail::to($reservation->user->email)->send(new ReservationCancelled($reservation));
+            $note = ' Enviamos el aviso por correo.';
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return back()->with('success', 'Reserva #'.$reservation->id.' cancelada; la habitación quedó libre.'.$note);
     }
-
     public function pdf(Request $request, Reservation $reservation)
     {
-        $this->authorizeAccess($request, $reservation);
+        $reservation = $this->ownedReservation($request, $reservation);
 
         return response(app(ReservationDocument::class)->pdf($reservation), 200, [
             'Content-Type' => 'application/pdf',
@@ -119,8 +158,11 @@ class ReservationController extends Controller
         return view('reservations.verify', ['reservation' => Reservation::with(['room', 'user'])->findOrFail($id)]);
     }
 
-    private function authorizeAccess(Request $request, Reservation $reservation): void
+    // Un huésped solo alcanza sus propias reservas ($user->reservations()); el admin, todas.
+    private function ownedReservation(Request $request, Reservation $reservation): Reservation
     {
-        abort_unless($request->user()->is_admin || $reservation->user_id === $request->user()->id, 403);
+        $user = $request->user();
+
+        return $user->is_admin ? $reservation : $user->reservations()->findOrFail($reservation->id);
     }
 }

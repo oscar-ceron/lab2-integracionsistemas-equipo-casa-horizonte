@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
+            const reasons = form.dataset.reasons ? JSON.parse(form.dataset.reasons) : null;
             brand.fire({
                 title: form.dataset.confirmTitle || 'Confirmación',
                 text: form.dataset.confirm || '¿Estás seguro?',
@@ -36,7 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 showCancelButton: true,
                 reverseButtons: true,
                 confirmButtonText: form.dataset.confirmButton || 'Sí, continuar',
-            }).then((r) => r.isConfirmed && form.submit());
+                cancelButtonText: form.dataset.cancelButton || 'Volver',
+                ...(reasons ? { input: 'select', inputOptions: Object.fromEntries(reasons.map((r) => [r, r])), inputPlaceholder: 'Motivo (opcional)' } : {}),
+            }).then((r) => {
+                if (!r.isConfirmed) return;
+                if (reasons && r.value) {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden'; hidden.name = 'reason'; hidden.value = r.value;
+                    form.appendChild(hidden);
+                }
+                form.submit();
+            });
         });
     });
 });

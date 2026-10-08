@@ -124,6 +124,7 @@
 
             {{-- Mis reservas --}}
             <section x-show="tab === 'mis'" x-cloak x-transition:enter="transition duration-300 ease-snap" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                <p class="mb-3 flex items-start gap-2 text-sm text-gray-600"><x-icon name="clock" class="mt-0.5 size-4 text-gold-600" /> Puedes cancelar gratis hasta {{ \App\Models\Reservation::FREE_CANCEL_HOURS }} horas antes de la entrada (14:00). Pasado ese plazo, contacta con el hotel.</p>
                 <div class="rounded-2xl border border-gray-200 bg-white">@include('partials.reservations-list', ['reservations' => $myReservations])</div>
             </section>
 

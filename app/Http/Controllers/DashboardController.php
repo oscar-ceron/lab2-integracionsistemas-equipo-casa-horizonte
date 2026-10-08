@@ -16,7 +16,7 @@ class DashboardController extends Controller
             return redirect()->route('admin');
         }
 
-        $mine = Reservation::where('user_id', $user->id);
+        $mine = $user->reservations();
         $rooms = Room::orderBy('room_number')->get();
 
         return view('dashboard', [
