@@ -92,6 +92,7 @@ Para ejecutar este proyecto de forma correcta en un entorno local, se recomienda
 - **CRUD Completo:** Operaciones de crear, listar, editar y eliminar aplicadas sobre las habitaciones y las reservas mediante Eloquent ORM.
 - **Validación de Formularios:** Uso de *Form Requests* para rechazar registros incompletos, capacidades menores a uno, precios negativos y prevención de reservas superpuestas, además de incluir protección CSRF en todos los envíos.
 - **Vistas con Blade:** Uso de layouts base (`@extends`, `@yield`) para renderizar dinámicamente el catálogo de habitaciones y el historial de reservas de cada huésped.
+- **API REST con Laravel Sanctum:** Endpoints `/api/register`, `/api/login`, `/api/user` y `/api/logout` con autenticación por token Bearer y rutas protegidas mediante `auth:sanctum`. Ver la documentación completa en [docs/API_AUTENTICACION.md](docs/API_AUTENTICACION.md).
 
 ## Notas de IA
 
