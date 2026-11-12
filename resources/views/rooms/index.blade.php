@@ -1,37 +1,13 @@
+<x-app-layout>
+    <x-slot name="header"><h2>Habitaciones</h2></x-slot>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habitaciones</title>
-</head>
-<body>
-    <h1>Listado de habitaciones</h1>
-
-    @if ($rooms->isEmpty())
-        <p>No hay habitaciones registradas.</p>
-    @else
-        <table border="1" cellpadding="10">
-            <thead>
-                <tr>
-                    <th>Número</th>
-                    <th>Tipo</th>
-                    <th>Precio por noche</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($rooms as $room)
-                    <tr>
-                        <td>{{ $room->room_number }}</td>
-                        <td>{{ $room->type }}</td>
-                        <td>${{ number_format($room->price_per_night, 2) }}</td>
-                        <td>{{ $room->status }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-</body>
-</html>
+    <div class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+        <div class="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
+            @forelse ($rooms as $room)
+                <div class="rise" style="--i:{{ $loop->index }}">@include('partials.room-row', ['room' => $room])</div>
+            @empty
+                <p class="px-4 py-14 text-center text-gray-500">No hay habitaciones registradas.</p>
+            @endforelse
+        </div>
+    </div>
+</x-app-layout>

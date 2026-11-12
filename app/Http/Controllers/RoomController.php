@@ -2,66 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Room;
+use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
- public function index()
-{
-    $rooms = Room::all();
-
-    return view('rooms.index', compact('rooms'));
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index()
     {
-        //
+        return view('rooms.index', ['rooms' => Room::orderBy('room_number')->get()]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Room::create($this->validated($request));
+
+        return redirect()->route('admin', ['tab' => 'habitaciones'])->with('success', 'Habitación creada.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Room $room)
     {
-        //
+        $room->update($this->validated($request, $room));
+
+        return redirect()->route('admin', ['tab' => 'habitaciones'])->with('success', 'Habitación actualizada.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Room $room)
     {
-        //
+        if ($room->reservations()->where('status', '!=', 'cancelled')->exists()) {
+            return redirect()->route('admin', ['tab' => 'habitaciones'])
+                ->with('error', 'No se puede eliminar: tiene reservas activas.');
+        }
+
+        $room->delete();
+
+        return redirect()->route('admin', ['tab' => 'habitaciones'])->with('success', 'Habitación eliminada.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    private function validated(Request $request, ?Room $room = null): array
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $request->validate([
+            'room_number' => ['required', 'string', 'max:50', 'unique:rooms,room_number'.($room ? ','.$room->id : '')],
+            'type' => ['required', 'string', 'max:100'],
+            'capacity' => ['required', 'integer', 'min:1'],
+            'price_per_night' => ['required', 'numeric', 'min:0'],
+            'status' => ['required', 'in:available,unavailable'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ]);
     }
 }

@@ -1,0 +1,4 @@
+@php $wa = preg_replace('/\D/', '', config('hotel.whatsapp')); @endphp
+@foreach ([['facebook', 'Facebook', config('hotel.facebook'), 'hover:bg-[#1877f2]'], ['instagram', 'Instagram', config('hotel.instagram'), 'hover:bg-[#d62976]'], ['tiktok', 'TikTok', config('hotel.tiktok'), 'hover:bg-black'], ['whatsapp', 'WhatsApp', $wa ? 'https://wa.me/'.$wa : 'mailto:'.config('hotel.email'), 'hover:bg-[#25d366]']] as [$icon, $label, $url, $hover])
+    <a href="{{ $url }}" target="_blank" rel="noopener" aria-label="{{ $label }}" title="{{ $label }}" class="grid size-10 place-items-center rounded-full border border-gray-300 text-gray-600 transition duration-200 ease-snap hover:-translate-y-0.5 hover:border-transparent hover:text-white active:scale-95 {{ $hover }}"><x-social :name="$icon" /></a>
+@endforeach

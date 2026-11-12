@@ -16,13 +16,16 @@ class Room extends Model
         'type',
         'price_per_night',
         'status',
+        'capacity',
+        'description',
     ];
 
     /**
-     * Relación uno a muchos: Una habitación tiene muchas reservaciones.
+     * RelaciÃ³n uno a muchos: Una habitaciÃ³n tiene muchas reservaciones.
      */
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
     }
 }
+
