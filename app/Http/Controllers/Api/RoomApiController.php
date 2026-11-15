@@ -69,14 +69,12 @@ class RoomApiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(string $id)
+  public function destroy(string $id)
 {
     $room = Room::findOrFail($id);
 
     $room->delete();
 
-    return response()->json([
-        'message' => 'Habitación eliminada correctamente.'
-    ], 200);
+    return response()->noContent();
 }
 }

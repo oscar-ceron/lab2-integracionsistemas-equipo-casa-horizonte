@@ -100,13 +100,11 @@ class ReservationApiController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $reservation = $this->findReservation($request, $id);
+    $reservation = $this->findReservation($request, $id);
 
-        $reservation->delete();
+    $reservation->delete();
 
-        return response()->json([
-            'message' => 'Reservacion eliminada correctamente.'
-        ], 200);
+    return response()->noContent();
     }
 
     /**

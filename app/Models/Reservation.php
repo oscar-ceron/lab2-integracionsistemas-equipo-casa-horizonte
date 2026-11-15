@@ -38,11 +38,14 @@ class Reservation extends Model
         return $this->belongsTo(User::class);
     }
 
-    protected function casts(): array
+   protected function casts(): array
     {
-        return ['cancelled_at' => 'datetime'];
+    return [
+        'check_in' => 'date',
+        'check_out' => 'date',
+        'cancelled_at' => 'datetime',
+    ];
     }
-
     public function canceller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by');
