@@ -6,6 +6,7 @@ use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ReservationIsolationTest extends TestCase
@@ -153,5 +154,86 @@ class ReservationIsolationTest extends TestCase
             'check_out' => $r->check_out->toDateString(),
         ])->assertSessionHasNoErrors();
         $this->assertSame(1, $b->reservations()->count());
+    }
+
+    public function test_web_reservation_calculates_price_and_status_on_server(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+        $guest = User::factory()->create();
+        $room = $this->room();
+
+        $this->actingAs($guest)->post('/reservations', [
+            'room_id' => $room->id,
+            'check_in' => today()->addDays(3)->toDateString(),
+            'check_out' => today()->addDays(5)->toDateString(),
+        ])->assertSessionHasNoErrors();
+
+        $reservation = $guest->reservations()->firstOrFail();
+        $this->assertEquals(200, $reservation->total_price);
+        $this->assertSame('confirmed', $reservation->status);
+    }
+
+    public function test_web_reservation_rejects_client_price_and_status(): void
+    {
+        $guest = User::factory()->create();
+        $room = $this->room();
+
+        $this->actingAs($guest)->post('/reservations', [
+            'room_id' => $room->id,
+            'check_in' => today()->addDays(3)->toDateString(),
+            'check_out' => today()->addDays(5)->toDateString(),
+            'total_price' => 1,
+            'status' => 'cancelled',
+        ])->assertSessionHasErrors(['total_price', 'status']);
+
+        $this->assertSame(0, Reservation::count());
+    }
+
+    public function test_api_reservation_calculates_price_and_rejects_client_status(): void
+    {
+        $guest = User::factory()->create();
+        $room = $this->room();
+        Sanctum::actingAs($guest);
+
+        $this->postJson('/api/reservations', [
+            'room_id' => $room->id,
+            'check_in' => today()->addDays(3)->toDateString(),
+            'check_out' => today()->addDays(5)->toDateString(),
+        ])->assertCreated();
+
+        $reservation = $guest->reservations()->firstOrFail();
+        $this->assertEquals(200, $reservation->total_price);
+        $this->assertSame('confirmed', $reservation->status);
+
+        $this->postJson('/api/reservations', [
+            'room_id' => $room->id,
+            'check_in' => today()->addDays(8)->toDateString(),
+            'check_out' => today()->addDays(10)->toDateString(),
+            'total_price' => 1,
+            'status' => 'cancelled',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['total_price', 'status']);
+
+        $this->assertSame(1, $guest->reservations()->count());
+    }
+
+    public function test_api_reservation_update_recalculates_price_and_does_not_accept_price_or_status(): void
+    {
+        $guest = User::factory()->create();
+        $room = $this->room();
+        $reservation = $this->reservationAt($guest, 5);
+        Sanctum::actingAs($guest);
+
+        $this->patchJson('/api/reservations/'.$reservation->id, [
+            'check_out' => today()->addDays(8)->toDateString(),
+        ])->assertOk();
+
+        $this->assertEquals(300, $reservation->fresh()->total_price);
+        $this->assertSame('confirmed', $reservation->fresh()->status);
+
+        $this->patchJson('/api/reservations/'.$reservation->id, [
+            'total_price' => 1,
+            'status' => 'cancelled',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['total_price', 'status']);
+        $this->assertSame('confirmed', $reservation->fresh()->status);
     }
 }
