@@ -15,20 +15,24 @@ class ReservationService
     /** Create a web reservation, optionally on behalf of a guest for an admin. */
     public function createForWeb(User $actor, array $data): Reservation
     {
-        $guest = $actor;
+        // Escribe en dos tablas (users y reservations) como una sola unidad: si la reserva falla
+        // (por ejemplo, habitación ocupada), el huésped nuevo no queda creado.
+        return DB::transaction(function () use ($actor, $data): Reservation {
+            $guest = $actor;
 
-        if ($actor->is_admin) {
-            if (! empty($data['guest_email'])) {
-                $guest = User::firstOrCreate(
-                    ['email' => mb_strtolower($data['guest_email'])],
-                    ['name' => $data['guest_name'], 'password' => Str::random(24)]
-                );
-            } elseif (! empty($data['user_id'])) {
-                $guest = User::findOrFail($data['user_id']);
+            if ($actor->is_admin) {
+                if (! empty($data['guest_email'])) {
+                    $guest = User::firstOrCreate(
+                        ['email' => mb_strtolower($data['guest_email'])],
+                        ['name' => $data['guest_name'], 'password' => Str::random(24)]
+                    );
+                } elseif (! empty($data['user_id'])) {
+                    $guest = User::findOrFail($data['user_id']);
+                }
             }
-        }
 
-        return $this->create($guest, $data);
+            return $this->create($guest, $data);
+        });
     }
 
     /** Create an API reservation for the authenticated user. */
