@@ -1,0 +1,47 @@
+meta {
+  name: CL-10 · Reserva que se solapa un día
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenJuan}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas21}}",
+    "check_out": "{{hoyMas23}}"
+  }
+}
+
+tests {
+  test("CL-10 responde 422", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("CL-10 · error en room_id", function () {
+    expect(res.body.errors).to.have.property("room_id");
+  });
+
+  test("CL-10 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: valor límite
+  Esperado: 422 · error en room_id (la habitación ya está reservada en esas fechas)
+}
+

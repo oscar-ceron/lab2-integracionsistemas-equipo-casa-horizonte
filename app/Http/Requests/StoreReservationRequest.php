@@ -42,9 +42,6 @@ class StoreReservationRequest extends FormRequest
                     'guest_email' => ['prohibited'],
                 ];
             }
-
-            $rules['check_in'][] = 'after_or_equal:today';
-            $rules['check_in'][] = 'before_or_equal:'.today()->addYear()->toDateString();
         } else {
             $rules += [
                 'user_id' => ['prohibited'],
@@ -52,6 +49,10 @@ class StoreReservationRequest extends FormRequest
                 'guest_email' => ['prohibited'],
             ];
         }
+
+        // Mismas reglas de fecha en la web y en la API (E-01: fecha pasada; E-02: estadía extrema).
+        $rules['check_in'][] = 'after_or_equal:today';
+        $rules['check_in'][] = 'before_or_equal:'.today()->addYear()->toDateString();
 
         if (! $isUpdate) {
             $rules['check_out'][] = 'after:check_in';
@@ -63,7 +64,7 @@ class StoreReservationRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            if (! $this->is('api/*') && $this->filled('check_in') && $this->filled('check_out')
+            if ($this->filled('check_in') && $this->filled('check_out')
                 && ! $validator->errors()->has('check_in') && ! $validator->errors()->has('check_out')
                 && Carbon::parse($this->input('check_out'))->gt(Carbon::parse($this->input('check_in'))->addDays(30))) {
                 $validator->errors()->add('check_out', 'La estadía máxima es de 30 noches.');

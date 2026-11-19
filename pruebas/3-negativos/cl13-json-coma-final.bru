@@ -1,0 +1,44 @@
+meta {
+  name: CL-13 · JSON con coma al final
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/reservations
+  body: text
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:text {
+  {"room_id": {{room1Id}}, "check_in": "{{hoyMas10}}", "check_out": "{{hoyMas11}}",}
+}
+
+tests {
+  test("CL-13 responde 422", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("CL-13 · nunca 500", function () {
+    expect(res.getStatus()).to.be.below(500);
+  });
+
+  test("CL-13 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: caso negativo
+  Esperado: 422 · JSON con errores de validación; nunca 500 ni HTML
+}
+

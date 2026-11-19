@@ -1,0 +1,35 @@
+meta {
+  name: CL-18 paso 3 · Segundo DELETE (mismo id)
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{host}}/reservations/{{tempReservationId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+tests {
+  test("CL-18 segundo DELETE responde 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("CL-18 segundo DELETE · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: idempotencia
+  Esperado: 404 · la reserva ya no existe; el estado final es el mismo
+}
+

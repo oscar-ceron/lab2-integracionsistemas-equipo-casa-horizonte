@@ -1,0 +1,44 @@
+meta {
+  name: CL-17 · Usuario no admin crea una habitación
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/rooms
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenJuan}}
+}
+
+body:json {
+  {
+    "room_number": "R-999",
+    "type": "Sencilla",
+    "price_per_night": 40
+  }
+}
+
+tests {
+  test("CL-17 responde 403", function () {
+    expect(res.getStatus()).to.equal(403);
+  });
+
+  test("CL-17 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: caso negativo (seguridad)
+  Esperado: 403 · JSON; la habitación no se crea
+  Si falla con 201, el seeder borra R-999 en la siguiente corrida.
+}
+

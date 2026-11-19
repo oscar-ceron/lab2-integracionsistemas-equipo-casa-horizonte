@@ -1,0 +1,44 @@
+meta {
+  name: CL-01 · Login válido
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{emailAna}}",
+    "password": "{{password}}",
+    "device_name": "bruno-cl01"
+  }
+}
+
+tests {
+  test("CL-01 responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("CL-01 · token Bearer", function () {
+    expect(res.body.token).to.be.a("string");
+    expect(res.body.token_type).to.equal("Bearer");
+  });
+
+  test("CL-01 · no expone la contraseña", function () {
+    expect(res.body.user).to.not.have.property("password");
+  });
+}
+
+docs {
+  Técnica: caso exitoso
+  Esperado: 200 · token en token, token_type Bearer, sin contraseña en user
+}
+

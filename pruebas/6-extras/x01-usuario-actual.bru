@@ -1,0 +1,30 @@
+meta {
+  name: X-01 · Usuario autenticado
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/user
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+tests {
+  test("X-01 responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("X-01 · es Ana", function () {
+    expect(res.body.email).to.equal(bru.getEnvVar("emailAna"));
+  });
+}
+

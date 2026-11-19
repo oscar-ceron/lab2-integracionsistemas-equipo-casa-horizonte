@@ -1,0 +1,30 @@
+meta {
+  name: X-05 · El token revocado ya no sirve
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/user
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenLogout}}
+}
+
+tests {
+  test("X-05 responde 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+
+  test("X-05 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+

@@ -1,0 +1,42 @@
+meta {
+  name: P-4 · Ubicar las habitaciones 101 y 111
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/rooms
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAlex}}
+}
+
+script:post-response {
+  const rooms = res.body.data || [];
+  const find = (n) => rooms.find((r) => String(r.room_number) === n);
+  const r1 = find("101");
+  const r2 = find("111");
+  if (!r1 || !r2) { throw new Error("Faltan las habitaciones 101 y 111 en la base de datos"); }
+  bru.setVar("room1Id", r1.id);
+  bru.setVar("room2Id", r2.id);
+  bru.setVar("room1Price", Number(r1.price_per_night));
+}
+
+tests {
+  test("Listar habitaciones responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Existen las habitaciones 101 y 111", function () {
+    expect(bru.getVar("room1Id")).to.be.a("number");
+    expect(bru.getVar("room2Id")).to.be.a("number");
+  });
+}
+

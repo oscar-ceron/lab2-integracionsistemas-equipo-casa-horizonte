@@ -1,0 +1,35 @@
+meta {
+  name: P-2 · Login Juan
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{emailJuan}}",
+    "password": "{{password}}",
+    "device_name": "bruno-juan"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenJuan", res.body.token);
+  bru.setVar("idJuan", res.body.user.id);
+}
+
+tests {
+  test("Login Juan responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

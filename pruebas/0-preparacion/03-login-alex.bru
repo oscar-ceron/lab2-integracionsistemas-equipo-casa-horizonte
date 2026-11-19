@@ -1,0 +1,39 @@
+meta {
+  name: P-3 · Login Alex (admin)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{emailAlex}}",
+    "password": "{{password}}",
+    "device_name": "bruno-alex"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenAlex", res.body.token);
+  bru.setVar("idAlex", res.body.user.id);
+}
+
+tests {
+  test("Login Alex responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Alex es administrador", function () {
+    expect(res.body.user.is_admin).to.equal(true);
+  });
+}
+

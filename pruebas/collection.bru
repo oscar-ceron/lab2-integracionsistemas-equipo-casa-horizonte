@@ -1,0 +1,25 @@
+auth {
+  mode: none
+}
+
+script:pre-request {
+  // Fechas relativas a hoy en UTC (el servidor usa timezone UTC en config/app.php).
+  const f = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+  bru.setVar("hoyMenos1", f(-1));
+  bru.setVar("hoyMas1", f(1));
+  bru.setVar("hoyMas9", f(9));
+  bru.setVar("hoyMas10", f(10));
+  bru.setVar("hoyMas11", f(11));
+  bru.setVar("hoyMas20", f(20));
+  bru.setVar("hoyMas21", f(21));
+  bru.setVar("hoyMas22", f(22));
+  bru.setVar("hoyMas23", f(23));
+  bru.setVar("hoyMas40", f(40));
+  bru.setVar("hoyMas41", f(41));
+}
+
+docs {
+  Colección de pruebas de la API de Casa Horizonte (Laboratorio III, Bloque C).
+  Antes de cada corrida completa: php artisan db:seed --class=PruebasSeeder
+  Lee LEEME.md.
+}

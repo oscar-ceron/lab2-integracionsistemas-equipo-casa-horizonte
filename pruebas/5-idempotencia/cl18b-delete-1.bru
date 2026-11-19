@@ -1,0 +1,30 @@
+meta {
+  name: CL-18 paso 2 · Primer DELETE
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{host}}/reservations/{{tempReservationId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+tests {
+  test("CL-18 primer DELETE responde 204", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
+
+docs {
+  Esperado: 204
+}
+

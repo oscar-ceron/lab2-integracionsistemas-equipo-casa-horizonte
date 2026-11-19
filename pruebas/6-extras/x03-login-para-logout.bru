@@ -1,0 +1,34 @@
+meta {
+  name: X-03 · Login con un token propio para el logout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{emailJuan}}",
+    "password": "{{password}}",
+    "device_name": "bruno-logout"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenLogout", res.body.token);
+}
+
+tests {
+  test("X-03 responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

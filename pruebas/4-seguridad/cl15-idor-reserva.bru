@@ -1,0 +1,39 @@
+meta {
+  name: CL-15 · Juan consulta la reserva de Ana
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/reservations/{{baseReservationId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenJuan}}
+}
+
+tests {
+  test("CL-15 responde 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("CL-15 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("CL-15 · el cuerpo no trae datos de Ana", function () {
+    expect(JSON.stringify(res.body)).to.not.include(bru.getEnvVar("emailAna"));
+  });
+}
+
+docs {
+  Técnica: caso negativo (seguridad)
+  Esperado: 404 · JSON; sin datos de la reserva de Ana
+}
+

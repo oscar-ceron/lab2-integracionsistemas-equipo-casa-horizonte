@@ -1,0 +1,48 @@
+meta {
+  name: CL-12 · Cliente envía el precio
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas10}}",
+    "check_out": "{{hoyMas11}}",
+    "total_price": 1.00
+  }
+}
+
+tests {
+  test("CL-12 responde 422", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("CL-12 · error en total_price", function () {
+    expect(res.body.errors).to.have.property("total_price");
+  });
+
+  test("CL-12 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: contrato
+  Esperado: 422 · error en total_price (el precio lo calcula el servidor)
+}
+

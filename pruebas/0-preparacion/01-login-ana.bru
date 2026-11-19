@@ -1,0 +1,44 @@
+meta {
+  name: P-1 · Login Ana
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{emailAna}}",
+    "password": "{{password}}",
+    "device_name": "bruno-ana"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenAna", res.body.token);
+  bru.setVar("idAna", res.body.user.id);
+}
+
+tests {
+  test("Login Ana responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Login Ana · hay token", function () {
+    expect(res.body.token).to.be.a("string");
+  });
+}
+
+docs {
+  Si responde 422: revisa la variable secreta password del entorno Local.
+  Si responde 429: espera un minuto (límite de 10 intentos por minuto).
+}
+

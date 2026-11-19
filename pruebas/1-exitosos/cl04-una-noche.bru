@@ -1,0 +1,48 @@
+meta {
+  name: CL-04 · Estadía de 1 noche (mínimo válido)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas10}}",
+    "check_out": "{{hoyMas11}}"
+  }
+}
+
+tests {
+  test("CL-04 responde 201", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("CL-04 · status confirmed y dueña Ana", function () {
+    expect(res.body.data.status).to.equal("confirmed");
+    expect(res.body.data.user_id).to.equal(bru.getVar("idAna"));
+  });
+
+  test("CL-04 · precio calculado por el servidor (precio de la 101 x 1 noche)", function () {
+    expect(Number(res.body.data.total_price)).to.equal(bru.getVar("room1Price"));
+  });
+}
+
+docs {
+  Técnica: valor límite (mínimo válido)
+  Esperado: 201 · status confirmed, user_id de Ana, total_price = precio por noche de la habitación 101
+}
+

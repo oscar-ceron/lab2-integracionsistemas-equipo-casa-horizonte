@@ -1,0 +1,38 @@
+meta {
+  name: CL-18 paso 1 · Ana crea una reserva
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas40}}",
+    "check_out": "{{hoyMas41}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) { bru.setVar("tempReservationId", res.body.data.id); }
+}
+
+tests {
+  test("CL-18 paso 1 responde 201", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+

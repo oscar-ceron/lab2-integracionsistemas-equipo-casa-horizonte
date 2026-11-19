@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,5 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Un fallo de base de datos nunca muestra el SQL ni datos internos al cliente.
+        // El detalle completo queda en storage/logs/laravel.log.
+        $exceptions->render(function (QueryException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['message' => 'Error interno del servidor.'], 500);
+            }
+        });
     })->create();
 

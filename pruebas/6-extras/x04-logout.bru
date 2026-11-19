@@ -1,0 +1,26 @@
+meta {
+  name: X-04 · Logout revoca el token
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/logout
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenLogout}}
+}
+
+tests {
+  test("X-04 responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+

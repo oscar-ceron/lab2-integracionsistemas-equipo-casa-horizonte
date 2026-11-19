@@ -1,0 +1,32 @@
+meta {
+  name: CL-03 · Sin token
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/reservations
+  body: none
+  auth: none
+}
+
+tests {
+  test("CL-03 responde 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+
+  test("CL-03 · mensaje Unauthenticated.", function () {
+    expect(res.body.message).to.equal("Unauthenticated.");
+  });
+
+  test("CL-03 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: caso negativo
+  Esperado: 401 · JSON {message: Unauthenticated.}; nunca HTML ni redirección
+  Nota: esta petición no envía Accept explícito.
+}
+

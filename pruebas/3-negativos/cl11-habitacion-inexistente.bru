@@ -1,0 +1,47 @@
+meta {
+  name: CL-11 · Habitación inexistente
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": 99999999,
+    "check_in": "{{hoyMas10}}",
+    "check_out": "{{hoyMas11}}"
+  }
+}
+
+tests {
+  test("CL-11 responde 422", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("CL-11 · error en room_id", function () {
+    expect(res.body.errors).to.have.property("room_id");
+  });
+
+  test("CL-11 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: caso negativo
+  Esperado: 422 · error en room_id
+}
+

@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\Api\AuthController;
@@ -28,7 +27,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Recursos de habitaciones y reservaciones
-    Route::apiResource('rooms', RoomApiController::class);
+    // Habitaciones: cualquier usuario autenticado puede consultar; solo el administrador escribe (E-04).
+    Route::apiResource('rooms', RoomApiController::class)->only(['index', 'show']);
+    Route::apiResource('rooms', RoomApiController::class)
+        ->only(['store', 'update', 'destroy'])
+        ->middleware('admin');
+
+    // Reservaciones
     Route::apiResource('reservations', ReservationApiController::class);
 });

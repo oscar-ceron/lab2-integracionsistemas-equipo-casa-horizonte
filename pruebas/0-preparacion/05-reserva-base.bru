@@ -1,0 +1,46 @@
+meta {
+  name: P-5 · Reserva base de Ana (habitación 101, hoy+20 a hoy+22)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas20}}",
+    "check_out": "{{hoyMas22}}"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) { bru.setVar("baseReservationId", res.body.data.id); }
+}
+
+tests {
+  test("Reserva base responde 201", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Reserva base · guardó el id", function () {
+    expect(bru.getVar("baseReservationId")).to.be.a("number");
+  });
+}
+
+docs {
+  Si responde 422 por solapamiento, la base tiene datos de una corrida anterior: ejecuta el seeder y vuelve a correr.
+}
+

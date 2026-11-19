@@ -1,0 +1,47 @@
+meta {
+  name: CL-07 · Entrada en el pasado
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMenos1}}",
+    "check_out": "{{hoyMas1}}"
+  }
+}
+
+tests {
+  test("CL-07 responde 422", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("CL-07 · error en check_in", function () {
+    expect(res.body.errors).to.have.property("check_in");
+  });
+
+  test("CL-07 · el error viene en JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+}
+
+docs {
+  Técnica: partición
+  Esperado: 422 · error en check_in (la web ya rechaza fechas pasadas)
+}
+

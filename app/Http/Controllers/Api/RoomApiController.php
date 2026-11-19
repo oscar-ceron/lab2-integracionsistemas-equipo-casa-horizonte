@@ -11,9 +11,9 @@ class RoomApiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
 {
-    $rooms = Room::with('reservations')->get();
+    $rooms = Room::with($this->visibleReservations($request))->get();
 
     return RoomResource::collection($rooms);
 }
@@ -40,9 +40,9 @@ class RoomApiController extends Controller
     /**
      * Display the specified resource.
      */
-   public function show(string $id)
+   public function show(Request $request, string $id)
 {
-    $room = Room::with('reservations')->findOrFail($id);
+    $room = Room::with($this->visibleReservations($request))->findOrFail($id);
 
     return new RoomResource($room);
 }
@@ -77,4 +77,19 @@ class RoomApiController extends Controller
 
     return response()->noContent();
 }
+
+    /**
+     * Reservas que se cargan junto a la habitación: el administrador ve todas;
+     * un usuario normal solo las suyas (nunca las de otros huéspedes).
+     */
+    private function visibleReservations(Request $request): array
+    {
+        $user = $request->user();
+
+        return ['reservations' => function ($query) use ($user) {
+            if (! $user->is_admin) {
+                $query->where('user_id', $user->id);
+            }
+        }];
+    }
 }

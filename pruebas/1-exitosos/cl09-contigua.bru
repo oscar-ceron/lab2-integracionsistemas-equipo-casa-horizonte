@@ -1,0 +1,43 @@
+meta {
+  name: CL-09 · Reserva contigua (entra el día que otra sale)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/reservations
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenAna}}
+}
+
+body:json {
+  {
+    "room_id": {{room1Id}},
+    "check_in": "{{hoyMas22}}",
+    "check_out": "{{hoyMas23}}"
+  }
+}
+
+tests {
+  test("CL-09 responde 201", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("CL-09 · total_price = 1 noche de la 101", function () {
+    expect(Number(res.body.data.total_price)).to.equal(bru.getVar("room1Price"));
+  });
+}
+
+docs {
+  Técnica: valor límite
+  Esperado: 201 · las fechas contiguas no se solapan
+}
+

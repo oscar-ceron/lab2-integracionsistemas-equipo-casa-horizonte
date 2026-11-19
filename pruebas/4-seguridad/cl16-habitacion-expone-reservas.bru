@@ -1,0 +1,37 @@
+meta {
+  name: CL-16 · Juan ve la habitación 101: ¿reservas ajenas?
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/rooms/{{room1Id}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{tokenJuan}}
+}
+
+tests {
+  test("CL-16 responde 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("CL-16 · no incluye reservas de otros usuarios", function () {
+    const lista = (res.body.data && res.body.data.reservations) || [];
+    const ajenas = lista.filter((r) => r.user_id !== bru.getVar("idJuan"));
+    expect(ajenas).to.have.length(0);
+  });
+}
+
+docs {
+  Técnica: caso negativo (seguridad)
+  Esperado: 200 · reservations sin reservas de otros usuarios
+}
+
