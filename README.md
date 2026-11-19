@@ -112,3 +112,47 @@ El proyecto evoluciona de PHP nativo a la estructura estándar de Laravel:
 - **Controladores (`app/Http/Controllers/`):** Gestionan el flujo de datos.
 - **Form Requests (`app/Http/Requests/`):** Aíslan la lógica de validación (ej. `StoreReservationRequest`).
 - **Vistas (`resources/views/`):** Plantillas Blade para el área pública y el panel administrativo protegido por autenticación.
+## API REST y recursos
+
+El proyecto incorpora servicios API para la administración de habitaciones y reservaciones. Para mantener respuestas estructuradas y uniformes, se utilizan Laravel API Resources.
+
+**Recursos implementados:**
+
+- `RoomResource`: transforma la información de las habitaciones.
+- `ReservationResource`: transforma la información de las reservaciones.
+
+**Controladores API:**
+
+- `RoomApiController`: administra las operaciones relacionadas con habitaciones.
+- `ReservationApiController`: administra las operaciones relacionadas con reservaciones, considerando los permisos del usuario autenticado.
+
+La autenticación de los servicios API se realiza mediante Laravel Sanctum.
+
+## Documentación del proyecto
+
+La documentación técnica complementaria se encuentra organizada en los siguientes archivos:
+
+| Documento | Descripción |
+|---|---|
+| [API_AUTENTICACION.md](docs/API_AUTENTICACION.md) | Explica la autenticación API mediante Laravel Sanctum. |
+| [Anexo-A.md](docs/Anexo-A.md) | Presenta la comparación técnica entre Laravel y Django. |
+| [FICHA_USO_CRITICO_IA.md](docs/FICHA_USO_CRITICO_IA.md) | Documenta el uso, beneficios, limitaciones y validación de las recomendaciones de IA. |
+| [CAMBIOS.md](CAMBIOS.md) | Registra el mantenimiento correctivo y evolutivo del proyecto. |
+
+## Mantenimiento y control de calidad
+
+El proyecto contempla actividades de mantenimiento correctivo y evolutivo, incluyendo el aislamiento de reservas por usuario autenticado, la incorporación de autenticación API y la implementación de recursos para estructurar las respuestas.
+
+Las funcionalidades se verifican mediante pruebas automatizadas con PHPUnit y las herramientas de pruebas integradas en Laravel.
+
+Para ejecutar las pruebas del proyecto:
+
+```bash
+php artisan test
+```
+
+## Uso responsable de inteligencia artificial
+
+Se utilizaron herramientas de inteligencia artificial como apoyo para la comprensión de conceptos, revisión de código, identificación de errores y elaboración de documentación. Las recomendaciones se revisaron y contrastaron con la implementación y las pruebas del sistema.
+
+La ficha de uso crítico de IA contiene información complementaria sobre los beneficios, riesgos y criterios de validación aplicados.
