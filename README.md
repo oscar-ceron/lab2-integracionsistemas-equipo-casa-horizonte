@@ -1,4 +1,8 @@
-# Casa Horizonte - Laboratorio II (Migración a Laravel)
+# GUÍA DE LABORATORIO III
+## API REST protegida, probada, mantenible y con uso crítico de IA
+
+**Proyecto:** Casa Horizonte
+# Casa Horizonte - GUÍA DE LABORATORIO III
 
 Aplicación web de hospedaje para administrar habitaciones y reservas, migrada al framework Laravel. Este proyecto implementa un patrón MVC, modelo de persistencia con Eloquent ORM, vistas dinámicas con Blade, validación de datos a través de Form Requests y un sistema de autenticación de usuarios para garantizar el aislamiento de datos.
 
@@ -88,22 +92,40 @@ Para ejecutar este proyecto de forma correcta en un entorno local, se recomienda
 
 ## Funcionalidades Principales
 
-- **Autenticación y Sesiones:** Sistema de registro e inicio de sesión. Cada usuario visualiza y gestiona únicamente las reservas e información que le pertenece.
-- **CRUD Completo:** Operaciones de crear, listar, editar y eliminar aplicadas sobre las habitaciones y las reservas mediante Eloquent ORM.
-- **Validación de Formularios:** Uso de *Form Requests* para rechazar registros incompletos, capacidades menores a uno, precios negativos y prevención de reservas superpuestas, además de incluir protección CSRF en todos los envíos.
-- **Vistas con Blade:** Uso de layouts base (`@extends`, `@yield`) para renderizar dinámicamente el catálogo de habitaciones y el historial de reservas de cada huésped.
-- **API REST con Laravel Sanctum:** Endpoints `/api/register`, `/api/login`, `/api/user` y `/api/logout` con autenticación por token Bearer y rutas protegidas mediante `auth:sanctum`. Ver la documentación completa en [docs/API_AUTENTICACION.md](docs/API_AUTENTICACION.md).
+## Funcionalidades Principales
+
+- **Autenticación y sesiones:** Sistema de registro e inicio de sesión. Cada usuario visualiza y gestiona únicamente las reservas que le pertenecen.
+- **CRUD de habitaciones y reservas:** Operaciones de creación, consulta, actualización y eliminación mediante Eloquent ORM.
+- **Validación de formularios:** Uso de Form Requests para validar los datos recibidos, fechas, habitaciones y disponibilidad de reservas, con mensajes en español.
+- **Gestión de reservas:** Uso de `ReservationService` para centralizar la lógica de negocio relacionada con la creación, actualización y disponibilidad de las reservas.
+- **Vistas con Blade:** Uso de layouts y plantillas dinámicas para el catálogo de habitaciones y el historial de reservas.
+- **API REST:** Endpoints para autenticación, consulta y administración de habitaciones y reservas.
+- **Autenticación API con Laravel Sanctum:** Registro, inicio y cierre de sesión mediante tokens Bearer, además de rutas protegidas con `auth:sanctum`.
+- **API Resources:** Uso de `RoomResource` y `ReservationResource` para estructurar las respuestas JSON.
+- **Seguridad y autorización:** Aislamiento de reservas por usuario autenticado, protección frente a accesos IDOR y restricciones de operaciones administrativas.
+- **Manejo de errores:** Respuestas JSON estandarizadas para errores de validación, autenticación, autorización y otros casos de la API.
+
+La documentación de autenticación se encuentra en [docs/API_AUTENTICACION.md](docs/API_AUTENTICACION.md).
 
 ## Notas de IA
 
-Este proyecto fue desarrollado con apoyo de herramientas de IA para reforzar la productividad en tareas de documentación, revisión de código y apoyo en la organización de la estructura del proyecto. La IA se utilizó principalmente como asistente para:
+## Uso crítico y responsable de inteligencia artificial
 
-- proponer mejoras en la estructura de archivos y organización del código;
-- redactar y ajustar documentación técnica, incluyendo este README;
-- revisar consistencia en la lógica de validación y flujo de autenticación;
-- apoyar la identificación de posibles errores y sugerencias de refactorización;
+Durante el desarrollo de Casa Horizonte se utilizaron herramientas de inteligencia artificial como apoyo en actividades de programación, comprensión de conceptos, revisión de código, identificación de errores y elaboración de documentación técnica.
 
-Sin embargo, la toma de decisiones finales, la validación funcional del sistema y la aprobación del resultado corresponden al equipo. El código, la lógica de negocio y la configuración final del proyecto fueron revisados y ajustados manualmente para garantizar que el comportamiento del sistema sea consistente con los requisitos del laboratorio.
+La IA contribuyó a:
+
+- Proponer mejoras en la organización y estructura del código.
+- Apoyar la comprensión de Laravel, Sanctum y API Resources.
+- Analizar errores y sugerir posibles soluciones.
+- Revisar la lógica de validación y los controles de seguridad.
+- Elaborar y mejorar documentación técnica.
+
+Las respuestas y recomendaciones generadas por IA no se incorporaron automáticamente. El equipo revisó su pertinencia, contrastó las sugerencias con la documentación técnica y verificó los resultados mediante pruebas.
+
+Se reconoce que la inteligencia artificial puede generar respuestas incorrectas, incompletas o incompatibles con el proyecto. Por ello, las decisiones finales, la revisión del código y la validación funcional corresponden a los integrantes del equipo.
+
+Para ampliar la información sobre los criterios de uso, beneficios, riesgos y validación de las recomendaciones, consultar [docs/FICHA_USO_CRITICO_IA.md](docs/FICHA_USO_CRITICO_IA.md).
 
 ## Arquitectura y Modelo de Datos (Migrado)
 
@@ -141,15 +163,37 @@ La documentación técnica complementaria se encuentra organizada en los siguien
 
 ## Mantenimiento y control de calidad
 
-El proyecto contempla actividades de mantenimiento correctivo y evolutivo, incluyendo el aislamiento de reservas por usuario autenticado, la incorporación de autenticación API y la implementación de recursos para estructurar las respuestas.
+## Mantenimiento y control de calidad
 
-Las funcionalidades se verifican mediante pruebas automatizadas con PHPUnit y las herramientas de pruebas integradas en Laravel.
+El proyecto contempla actividades de mantenimiento correctivo y evolutivo para mejorar la seguridad, confiabilidad y capacidad de mantenimiento de la API REST.
 
-Para ejecutar las pruebas del proyecto:
+Entre las mejoras implementadas se encuentran:
+
+- Aislamiento de las reservas según el usuario autenticado.
+- Autenticación mediante Laravel Sanctum y tokens Bearer.
+- Validación de solicitudes mediante Form Requests.
+- Centralización de la lógica de reservas mediante `ReservationService`.
+- Uso de API Resources para estandarizar las respuestas JSON.
+- Protección de rutas y operaciones administrativas.
+- Manejo global de errores y respuestas JSON.
+- Uso de `DB::transaction()` para mantener la consistencia de las operaciones en la base de datos.
+
+### Pruebas automatizadas
+
+Se utiliza PHPUnit mediante las herramientas de pruebas integradas en Laravel.
+
+Para ejecutar las pruebas:
 
 ```bash
 php artisan test
 ```
+
+**Último resultado registrado:**
+- 45 pruebas aprobadas.
+- 140 aserciones.
+- 0 pruebas fallidas.
+
+También se realizaron pruebas de los endpoints mediante Bruno, incluyendo autenticación, operaciones CRUD, validaciones, permisos, seguridad IDOR y casos límite.
 
 ## Uso responsable de inteligencia artificial
 

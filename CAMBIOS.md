@@ -2,7 +2,7 @@
 
 ## Bloque D – Mantenimiento correctivo y evolutivo
 
-**Proyecto:** Casa Horizonte – Laboratorio II
+**Proyecto:** Casa Horizonte – GUÍA DE LABORATORIO III
 **Framework:** Laravel 13
 **Rama:** `main`
 **Fecha de documentación:** 19 de noviembre de 2026
@@ -12,95 +12,168 @@
 ### MC-001 – Aislamiento de reservas por usuario autenticado
 
 **Problema identificado:**
-
-Era necesario garantizar que cada usuario pudiera consultar y gestionar únicamente sus propias reservas, evitando el acceso no autorizado a información perteneciente a otras personas.
+Era necesario garantizar que cada usuario pudiera consultar y administrar únicamente sus propias reservas, evitando el acceso no autorizado a información de otros usuarios.
 
 **Cambio realizado:**
-
-Se ajustaron los controladores y las relaciones entre los modelos `User` y `Reservation` para asociar las operaciones de reservas con el usuario autenticado. También se incorporaron controles para diferenciar los permisos de usuarios y administradores.
+Se incorporaron controles de acceso basados en el usuario autenticado y sus relaciones con las reservas. También se contemplaron los permisos correspondientes para los administradores.
 
 **Archivos relacionados:**
 - `app/Http/Controllers/DashboardController.php`
 - `app/Http/Controllers/ReservationController.php`
 - `app/Models/Reservation.php`
 - `app/Models/User.php`
-- `tests/Feature/ReservationIsolationTest.php`
+- Pruebas de aislamiento de reservas.
 
 **Verificación:**
+Se realizaron pruebas para comprobar el aislamiento de reservas, los permisos administrativos y las operaciones sobre las reservas.
 
-Se incorporaron pruebas automatizadas para comprobar el aislamiento de reservas, el acceso administrativo y las restricciones sobre las operaciones de cancelación.
+**Commit relacionado:** `6135c7a`.
 
-**Commit de referencia:** `6135c7a`
+### MC-002 – Corrección de respuestas y controles de seguridad en la API
+
+**Problema identificado:**
+Se necesitaba mejorar el comportamiento de los endpoints de la API, las respuestas HTTP y la protección frente al acceso a recursos de otros usuarios.
+
+**Cambio realizado:**
+Se ajustaron los controladores para aplicar restricciones de acceso, validar operaciones y utilizar respuestas HTTP apropiadas, incluyendo la respuesta `204 No Content` para operaciones de eliminación.
+
+**Archivos relacionados:**
+- `app/Http/Controllers/Api/RoomApiController.php`
+- `app/Http/Controllers/Api/ReservationApiController.php`
+- Modelos y rutas de la API.
+
+**Commit relacionado:** `2989aa0`.
+
+### MC-003 – Manejo de errores y validación de respuestas JSON
+
+**Problema identificado:**
+Era necesario estandarizar el tratamiento de errores de la API y evitar respuestas con información técnica innecesaria.
+
+**Cambio realizado:**
+Se incorporó manejo global de errores en la aplicación y se realizaron pruebas para comprobar las respuestas ante errores de validación, autorización y otros casos límite.
+
+**Archivos relacionados:**
+- `bootstrap/app.php`
+- Controladores y clases de validación.
+- Pruebas automatizadas.
+
+**Commit relacionado:** `8cd0e16`.
 
 ## 2. Mantenimiento evolutivo
 
 ### ME-001 – Gestión de cancelaciones de reservas
 
-**Mejora incorporada:**
+Se incorporaron funcionalidades relacionadas con la cancelación de reservas, incluyendo los cambios correspondientes en el modelo, eventos, notificaciones y vistas de la aplicación.
 
-Se amplió la gestión de reservaciones mediante el registro de información relacionada con las cancelaciones, incluyendo datos asociados a su procesamiento y notificaciones por correo electrónico.
+**Elementos relacionados:**
+- Evento `ReservationCancelled.php`.
+- Modelo `Reservation`.
+- Plantilla de correo electrónico.
+- Componentes de la lista de reservas.
+
+### ME-002 – Autenticación mediante Laravel Sanctum
+
+Se incorporó autenticación por tokens para permitir el acceso seguro a los endpoints de la API.
+
+**Funcionalidades:**
+- Registro de usuarios.
+- Inicio de sesión.
+- Generación de tokens.
+- Consulta del usuario autenticado.
+- Cierre de sesión y revocación del token.
 
 **Archivos relacionados:**
-- `app/Mail/ReservationCancelled.php`
-- `app/Models/Reservation.php`
-- `resources/views/emails/cancelled.blade.php`
-- `resources/views/partials/reservations-list.blade.php`
-
-### ME-002 – Incorporación de autenticación API con Laravel Sanctum
-
-**Mejora incorporada:**
-
-Se implementó autenticación para los servicios API utilizando Laravel Sanctum, incorporando operaciones de registro, inicio de sesión y administración de tokens de acceso.
-
-**Archivos relacionados:**
-- `app/Http/Controllers/Api/AuthController.php`
-- `config/sanctum.php`
+- Controlador de autenticación.
 - `routes/api.php`
 - `bootstrap/app.php`
-- `database/migrations/2026_11_10_205114_create_personal_access_tokens_table.php`
+- Modelo `User`.
+- Configuración y migraciones de Sanctum.
 
-**Commit de referencia:** `994e360`
+**Commit relacionado:** `994e360`.
 
 ### ME-003 – Implementación de API Resources
 
-**Mejora incorporada:**
-
-Se incorporaron recursos API para habitaciones y reservaciones con el propósito de organizar y estandarizar la información devuelta por los endpoints.
+Se incorporaron recursos para estructurar y estandarizar las respuestas JSON de habitaciones y reservas.
 
 **Archivos relacionados:**
 - `app/Http/Resources/RoomResource.php`
 - `app/Http/Resources/ReservationResource.php`
-- `app/Http/Controllers/Api/RoomApiController.php`
-- `app/Http/Controllers/Api/ReservationApiController.php`
+- Controladores de la API.
 - `routes/api.php`
 
-**Commit de referencia:** `dda4c57`
+**Commit relacionado:** `dda4c57`.
+
+### ME-004 – Validación mediante Form Requests y ReservationService
+
+Se centralizó la validación de las solicitudes relacionadas con las reservas y se incorporó un servicio para gestionar la lógica de negocio.
+
+**Elementos relacionados:**
+- `StoreReservationRequest`
+- `CancelReservationRequest`
+- `ReservationService`
+
+Se incluyeron validaciones de fechas, habitaciones, disponibilidad y datos de las reservas.
+
+**Commit relacionado:** `7038c72`.
+
+### ME-005 – Operaciones transaccionales en la creación de reservas
+
+Se incorporó una operación mediante `DB::transaction()` para mantener la consistencia de los datos durante la creación de reservas que involucran más de una operación en la base de datos.
+
+**Archivo relacionado:**
+- `app/Services/ReservationService.php`
+
+**Commit relacionado:** `a94b9f9`.
 
 ## 3. Pruebas y validación
 
-Se utilizaron pruebas automatizadas para verificar el funcionamiento de la autenticación, las operaciones del sistema y el aislamiento de reservas.
+Se ejecutaron pruebas automatizadas para verificar el funcionamiento general de la aplicación y sus funcionalidades.
 
-En una ejecución de validación del proyecto se obtuvieron los siguientes resultados:
+**Comando utilizado:**
 
-- 41 pruebas aprobadas.
-- 117 aserciones satisfactorias.
-- Pruebas de autenticación API con Sanctum.
-- Pruebas de aislamiento y administración de reservas.
+```bash
+php artisan test
+```
+
+**Último resultado registrado:**
+- 45 pruebas aprobadas.
+- 140 aserciones.
+- 0 pruebas fallidas.
+
+También se realizaron pruebas de API mediante Bruno para comprobar:
+- Autenticación y autorización.
+- Operaciones CRUD.
+- Validación de datos.
+- Respuestas HTTP.
+- Aislamiento de información entre usuarios.
+- Casos límite y manejo de errores.
+
+Se cuenta con una bitácora de pruebas y evidencias asociadas a los casos documentados.
 
 ## 4. Documentación técnica
 
-Como parte de la evolución del proyecto se incorporaron documentos para facilitar la comprensión y utilización de los servicios:
+Se consolidó la documentación del proyecto para facilitar su instalación, comprensión, mantenimiento y verificación.
 
-- `docs/API_AUTENTICACION.md`: documentación de la autenticación API.
-- `docs/Anexo-A.md`: comparación técnica entre Laravel y Django.
-- `README.md`: instrucciones generales de instalación, configuración y ejecución.
+| Archivo | Descripción |
+|---|---|
+| `README.md` | Información general, instalación, configuración y funcionalidades del proyecto. |
+| `docs/API_AUTENTICACION.md` | Documentación de la autenticación mediante Laravel Sanctum. |
+| `docs/Anexo-A.md` | Comparación de Laravel con otro framework. |
+| `docs/FICHA_USO_CRITICO_IA.md` | Registro y evaluación del uso de inteligencia artificial. |
+| `docs/Bitacora Pruebas CasaHorizonte.xlsx` | Registro de casos de prueba y resultados. |
+| `CAMBIOS.md` | Registro de mantenimiento correctivo y evolutivo. |
 
 ## 5. Control de versiones
 
-Los cambios documentados se encuentran integrados en la rama `main` del repositorio del equipo.
+Los cambios se integraron en la rama `main` mediante commits y procesos de integración del equipo.
 
-**Último commit de integración:** `ac2807a` – Merge origin/main: integrar autenticación y API Resources.
+Entre los commits relacionados con las mejoras documentadas se encuentran:
 
----
+- `2989aa0` – Ajustes de controladores API y respuestas HTTP.
+- `7038c72` – Form Requests y ReservationService.
+- `45eb3b5` – Integración de Form Requests y ReservationService.
+- `8cd0e16` – Pruebas y manejo de errores.
+- `a94b9f9` – Implementación de una operación con `DB::transaction()`.
+- `0e95837` – Documentación del Bloque D.
 
-**Nota:** Este registro consolida cambios identificados en el historial del repositorio. No representa una atribución individual de todas las modificaciones, sino la documentación técnica del trabajo integrado en el proyecto.
+**Nota:** Este documento consolida los cambios técnicos y documentales integrados en el proyecto. La relación de cambios no implica que todas las modificaciones hayan sido realizadas por una sola persona; se reconocen las responsabilidades y aportes de los integrantes del equipo.

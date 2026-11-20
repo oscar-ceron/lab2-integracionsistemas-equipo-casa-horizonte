@@ -2,7 +2,7 @@
 
 ## 1. Datos generales
 
-**Proyecto:** Casa Horizonte – Laboratorio II
+**Proyecto:** Casa Horizonte – GUÍA DE LABORATORIO III
 **Tecnología:** Laravel 13, PHP, MySQL y Laravel Sanctum
 **Herramienta de IA utilizada:** ChatGPT
 **Propósito:** Apoyar el desarrollo, revisión, documentación y validación del proyecto.
