@@ -92,8 +92,6 @@ Para ejecutar este proyecto de forma correcta en un entorno local, se recomienda
 
 ## Funcionalidades Principales
 
-## Funcionalidades Principales
-
 - **Autenticación y sesiones:** Sistema de registro e inicio de sesión. Cada usuario visualiza y gestiona únicamente las reservas que le pertenecen.
 - **CRUD de habitaciones y reservas:** Operaciones de creación, consulta, actualización y eliminación mediante Eloquent ORM.
 - **Validación de formularios:** Uso de Form Requests para validar los datos recibidos, fechas, habitaciones y disponibilidad de reservas, con mensajes en español.
@@ -106,8 +104,6 @@ Para ejecutar este proyecto de forma correcta en un entorno local, se recomienda
 - **Manejo de errores:** Respuestas JSON estandarizadas para errores de validación, autenticación, autorización y otros casos de la API.
 
 La documentación de autenticación se encuentra en [docs/API_AUTENTICACION.md](docs/API_AUTENTICACION.md).
-
-## Notas de IA
 
 ## Uso crítico y responsable de inteligencia artificial
 
@@ -160,8 +156,6 @@ La documentación técnica complementaria se encuentra organizada en los siguien
 | [Anexo-A.md](docs/Anexo-A.md) | Presenta la comparación técnica entre Laravel y Django. |
 | [FICHA_USO_CRITICO_IA.md](docs/FICHA_USO_CRITICO_IA.md) | Documenta el uso, beneficios, limitaciones y validación de las recomendaciones de IA. |
 | [CAMBIOS.md](CAMBIOS.md) | Registra el mantenimiento correctivo y evolutivo del proyecto. |
-
-## Mantenimiento y control de calidad
 
 ## Mantenimiento y control de calidad
 
